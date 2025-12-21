@@ -1,7 +1,7 @@
-package net.lolwrcalc.aeternum.ui;
+package net.aeternum.lolwrcalc.ui;
 
-import net.lolwrcalc.aeternum.util.ErrorCodes;
-import net.lolwrcalc.aeternum.agentProfiles.ProfileManager;
+import net.aeternum.lolwrcalc.util.ErrorCodes;
+import net.aeternum.lolwrcalc.agentProfiles.ProfileManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
@@ -36,7 +36,7 @@ public class OpeningDialogue implements Dialogue {
         }
 
         switch (choice) {
-            case 1,2 -> ui.run(ui.getProfileManagerDialogue() != null ? ui.getProfileManagerDialogue() : ProfileManager.instance.new ProfileManagerDialogue());
+            case 1,2 -> ui.run(ui.getProfileManagerDialogue() != null ? ui.getProfileManagerDialogue() : new ProfileManagerDialogue(ProfileManager.instance));
             case 3 -> System.exit(0);
         }
 

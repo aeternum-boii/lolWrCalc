@@ -1,4 +1,4 @@
-package net.lolwrcalc.aeternum.ui;
+package net.aeternum.lolwrcalc.ui;
 
 import org.jetbrains.annotations.NotNull;
 

@@ -1,7 +1,7 @@
-package net.lolwrcalc.aeternum.util;
+package net.aeternum.lolwrcalc.util;
 
-import net.lolwrcalc.aeternum.ui.Dialogue;
-import net.lolwrcalc.aeternum.ui.UserInterface;
+import net.aeternum.lolwrcalc.ui.Dialogue;
+import net.aeternum.lolwrcalc.ui.UserInterface;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
@@ -11,42 +11,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 public final class StringMatcher {
-
-    public static class StringMatcherDialogue implements Dialogue {
-
-        @Override
-        public Dialogue run(@NotNull PrintStream ps, @NotNull InputStream is, @NotNull UserInterface ui, Object @NotNull ... args) {
-            // args[0][0] = output (String), args[1] input, args[2] String Array to fuzzy match on
-            String[] output = (String[]) args[0];
-            AtomicReference<String> s = new AtomicReference<>((String) args[1]);
-            String[] list = (String[]) args[2];
-
-            AtomicBoolean valid = new AtomicBoolean(false);
-            while(!valid.get()) {
-                Optional<String> closest = closestIfAbsent(list, s.get());
-                closest.ifPresentOrElse(string -> {
-                    ps.println("Could not find \"" + s + "\", did you mean \"" + string + "\"?");
-                    ps.print("Enter your choice [Y/N]:");
-                    Scanner sc = new Scanner(is);
-
-                    String choice = sc.nextLine();
-                    if (choice.equalsIgnoreCase("y")) {
-                        output[0] = string;
-                        valid.set(true);
-                    } else if (choice.equalsIgnoreCase("n")) {
-                        ps.print("What did you mean then: ");
-                        s.set(sc.nextLine());
-                    }
-                    else ps.println("Invalid input!");
-                }, () -> {
-                    output[0] = s.get();
-                    valid.set(true);
-                });
-            }
-
-            return this;
-        }
-    }
 
     public static Optional<String> closestIfAbsent(@NotNull String @NotNull [] array, @NotNull String s) {
         for (String v : array) {

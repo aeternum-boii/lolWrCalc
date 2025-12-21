@@ -1,4 +1,4 @@
-package net.lolwrcalc.aeternum.util;
+package net.aeternum.lolwrcalc.util;
 
 public final class ErrorCodes {
     public static final int INPUT_PARSING_ERROR = 1;

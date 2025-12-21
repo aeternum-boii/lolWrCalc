@@ -1,107 +1,23 @@
-package net.lolwrcalc.aeternum.agentProfiles;
+package net.aeternum.lolwrcalc.agentProfiles;
 
-import net.lolwrcalc.aeternum.ui.Dialogue;
-import net.lolwrcalc.aeternum.ui.UserInterface;
-import net.lolwrcalc.aeternum.util.ErrorCodes;
-import net.lolwrcalc.aeternum.util.StringMatcher;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Scanner;
 
 public class AgentProfile {
     public String getIdentifier() {
         return name;
     }
 
-    public class AgentProfileDialogue implements Dialogue {
+    public String stringRep() {
+        StringBuilder sb = new StringBuilder();
 
-        @Override
-        public Dialogue run(@NotNull PrintStream ps, @NotNull InputStream is, @NotNull UserInterface ui, Object... args) {
-            ps.println("Profile name: " + name + "\nCurrent Choices: ");
-            for(Choice c : choices) ps.println("\t" + c.toCall());
-            ps.println();
+        sb.append("Profile name: ").append(name).append("\nCurrent Choices: \n");
+        for(Choice c : choices) sb.append("\t").append(c.toCall()).append("\n");
 
-            ps.print("""
-                    Options:
-                    1. Save Profile
-                    2. Add Champion/Role
-                    3. Remove Champion/Role
-                    4. Calculate WR against Champion/Role
-                    5. Back
-                    6. Exit
-                    
-                    Enter your choice [1..6]:\s""");
-
-
-            int choice = -1;
-            boolean valid = false;
-
-            while (!valid) {
-                try {
-                    Scanner sc = new Scanner(is);
-                    choice = sc.nextInt();
-                    valid = choice >= 1 && choice <= 6;
-                } catch (Exception e) {
-                    if(!(e instanceof NumberFormatException)) System.exit(1);
-                }
-                if(!valid) ps.println("Invalid input!");
-            }
-
-            switch (choice) {
-                case 1 -> {
-                    try {
-                        ProfileManager.instance.saveProfile(AgentProfile.this);
-                    } catch (IOException e) {
-                        ps.println("Error saving profile - exiting!");
-                        System.exit(ErrorCodes.PROFILE_IO_ERROR);
-                    }
-                    ui.run(ui.getProfileManagerDialogue() != null ? ui.getProfileManagerDialogue() : ProfileManager.instance.new ProfileManagerDialogue());
-                }
-                case 2 -> {
-                    AgentProfile.this.add(parseChoice(ps, is, ui));
-                    run(ps, is, ui, args);
-                }
-                case 3 -> {
-                    AgentProfile.this.remove(parseChoice(ps, is, ui));
-                    run(ps, is, ui, args);
-                }
-                case 4 -> {}
-                case 5 -> ui.run(ui.getProfileManagerDialogue() != null ? ui.getProfileManagerDialogue() : ProfileManager.instance.new ProfileManagerDialogue());
-                case 6 -> System.exit(0);
-            }
-
-            return this;
-        }
-
-        @Contract("_, _, _ -> new")
-        private @NotNull Choice parseChoice(@NotNull PrintStream ps, InputStream is, UserInterface ui) {
-            ps.println("Please enter the champion and role (separated by a space):");
-
-            boolean valid = false;
-            String[] input = null;
-            while (!valid) {
-                Scanner sc = new Scanner(is);
-                input = sc.nextLine().trim().split(" ");
-                if(input.length != 2) {
-                    ps.println("Invalid input!");
-                } else valid = true;
-            }
-
-            String[] out = new String[1];
-            new StringMatcher.StringMatcherDialogue().run(ps, is, ui, out, input[0], champions);
-            Champion champion = Champion.valueOf(out[0]);
-            new StringMatcher.StringMatcherDialogue().run(ps, is, ui, out, input[1], roles);
-            Role role = Role.valueOf(out[0]);
-
-            return new Choice(champion, role);
-        }
+        return sb.toString();
     }
 
     private final String name;
