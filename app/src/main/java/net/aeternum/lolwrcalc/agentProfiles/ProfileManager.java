@@ -20,7 +20,7 @@ public class ProfileManager {
 
     public String getStringRep() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Available profiles:");
+        sb.append("Available profiles:\n");
         profiles.forEach((k, v) -> sb.append("\t").append(k).append(": ").append(v).append("\n"));
         return sb.toString();
     }

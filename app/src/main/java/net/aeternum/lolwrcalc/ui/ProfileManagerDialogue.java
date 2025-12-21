@@ -33,7 +33,7 @@ public class ProfileManagerDialogue implements Dialogue {
                 4. Reload Profiles
                 5. Exit
                 
-                Enter your choice [1..3]:\s""");
+                Enter your choice [1..5]:\s""");
 
         boolean valid = false;
         int choice = -1;

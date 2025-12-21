@@ -1,7 +1,7 @@
-package net.lolwrcalc.aeternum;
+package net.aeternum.lolwrcalc;
 
-import net.lolwrcalc.aeternum.ui.OpeningDialogue;
-import net.lolwrcalc.aeternum.ui.UserInterface;
+import net.aeternum.lolwrcalc.ui.OpeningDialogue;
+import net.aeternum.lolwrcalc.ui.UserInterface;
 
 public class Main {
     public static void main(String[] args) {
