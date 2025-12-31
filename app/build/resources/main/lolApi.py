@@ -86,6 +86,9 @@ def main():
 
     for call in batched(args.params, arity):
         call_args = [str(x) for x in call]
+        if((fn == get_tierlist) or (fn == get_counters)):
+            call_args[0] = int(call_args[0])
+
         raw_result = fn(*call_args)
         result = normalise_result(raw_result)
 

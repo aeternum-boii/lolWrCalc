@@ -1,5 +1,6 @@
 package net.aeternum.lolwrcalc.ui;
 
+import net.aeternum.lolwrcalc.wrapper.Wrapper;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
@@ -10,6 +11,7 @@ public class UserInterface {
     private final PrintStream ps;
     private final InputStream is;
     private Dialogue profileManagerDialogue = null;
+    private Dialogue agentSelectorDialogue = null;
 
     public UserInterface(@NotNull PrintStream ps, @NotNull InputStream is) {
         this.ps = ps;
@@ -30,5 +32,13 @@ public class UserInterface {
 
     public void setProfileManagerDialogue(Dialogue profileManagerDialogue) {
         this.profileManagerDialogue = profileManagerDialogue;
+    }
+
+    public Dialogue getAgentSelectorDialogue() {
+        return agentSelectorDialogue;
+    }
+
+    public void setAgentSelectorDialogue(Dialogue agentSelectorDialogue) {
+        this.agentSelectorDialogue = agentSelectorDialogue;
     }
 }

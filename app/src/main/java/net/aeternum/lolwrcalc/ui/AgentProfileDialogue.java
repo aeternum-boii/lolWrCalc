@@ -68,6 +68,7 @@ public class AgentProfileDialogue implements Dialogue {
                 run(ps, is, ui, args);
             }
             case 4 -> {
+                new AgentSelectorDialogue(agentProfile).run(ps, is, ui, args);
             }
             case 5 ->
                     ui.run(ui.getProfileManagerDialogue() != null ? ui.getProfileManagerDialogue() : new ProfileManagerDialogue(ProfileManager.instance));

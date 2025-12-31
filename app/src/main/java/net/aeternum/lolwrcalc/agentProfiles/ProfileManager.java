@@ -7,6 +7,7 @@ import net.aeternum.lolwrcalc.util.ErrorCodes;
 import net.aeternum.lolwrcalc.util.StringMatcher;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,7 +49,8 @@ public class ProfileManager {
         }
     }
 
-    public Optional<AgentProfile> getProfile(String identifier) throws IOException {
+    public Optional<AgentProfile> getProfile(@NonNull String identifier) throws IOException {
+        if(!identifier.contains(PATH.toString())) identifier = PATH.resolve(identifier).toString();
         FileProfile fp = profiles.get(identifier);
         if(fp == null) return Optional.empty();
         return Optional.of(fp.getProfile());
