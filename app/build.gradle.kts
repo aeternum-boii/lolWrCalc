@@ -44,7 +44,7 @@ application {
 tasks {
     jar {
         manifest {
-            attributes["Main-Class"] = "net.aeternum.FfmpegRec"
+            attributes["Main-Class"] = "net.aeternum.lolwrcalc.Main"
         }
 
         val dependencies = configurations
