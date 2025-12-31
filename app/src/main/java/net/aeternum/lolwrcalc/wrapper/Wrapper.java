@@ -23,7 +23,8 @@ public class Wrapper {
 
     {
         try {
-            OUTPATH = Files.createTempFile("out", ".json", PosixFilePermissions.asFileAttribute(Set.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE)));
+            if(Objects.equals(System.lineSeparator(), "/")) OUTPATH = Files.createTempFile("out", ".json", PosixFilePermissions.asFileAttribute(Set.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE)));
+            else OUTPATH = Files.createTempFile("out", ".json");
             Files.writeString(OUTPATH, "[]", StandardOpenOption.TRUNCATE_EXISTING);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -39,7 +40,7 @@ public class Wrapper {
     }
 
     public Wrapper() {
-        try (InputStream in = Wrapper.class.getResourceAsStream(Path.of("/lolApi.py").toString())) {
+        try (InputStream in = Wrapper.class.getResourceAsStream(Path.of("lolApi.py").toString())) {
             if (in == null) throw new RuntimeException("Resource not found");
 
             Path tempDir = Files.createTempDirectory("python");
