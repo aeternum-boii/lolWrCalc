@@ -2,11 +2,13 @@ package net.aeternum.lolwrcalc.wrapper;
 
 import net.aeternum.lolwrcalc.util.StringMatcher;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Ranks {
+    public static String[] ranks = Arrays.stream(WrappableRank.values()).map(Enum::toString).toArray(String[]::new);
     public enum WrappableRank {
         challenger,
         grandmaster_plus,
@@ -28,7 +30,7 @@ public class Ranks {
         onetrick
     }
 
-    private final static Map<String, WrappableRank> rankMap = Map.<String, WrappableRank>ofEntries(
+    public final static Map<String, WrappableRank> rankMap = Map.<String, WrappableRank>ofEntries(
             Map.entry("challenger", WrappableRank.challenger),
             Map.entry("chall", WrappableRank.challenger),
             Map.entry("c", WrappableRank.challenger),

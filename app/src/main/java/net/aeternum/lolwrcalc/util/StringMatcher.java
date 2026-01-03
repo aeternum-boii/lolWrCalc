@@ -1,14 +1,8 @@
 package net.aeternum.lolwrcalc.util;
 
-import net.aeternum.lolwrcalc.ui.Dialogue;
-import net.aeternum.lolwrcalc.ui.UserInterface;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.InputStream;
-import java.io.PrintStream;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 public final class StringMatcher {
 

@@ -40,7 +40,7 @@ public class Wrapper {
     }
 
     public Wrapper() {
-        try (InputStream in = Wrapper.class.getResourceAsStream(Path.of("lolApi.py").toString())) {
+        try (InputStream in = Wrapper.class.getResourceAsStream(Path.of("/lolApi.py").toString())) {
             if (in == null) throw new RuntimeException("Resource not found");
 
             Path tempDir = Files.createTempDirectory("python");
@@ -145,17 +145,7 @@ public class Wrapper {
         ));
         for(String s : params) command.addLast(s);
 
-        ProcessBuilder pb = new ProcessBuilder(command);
-        pb.inheritIO();
-
-        Process process = pb.start();
-
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                System.out.println(line);
-            }
-        }
+        Process process = new ProcessBuilder(command).inheritIO().start();
 
         int exitCode = process.waitFor();
         System.out.println("[WRAPPER]: Process exited with code: " + exitCode);

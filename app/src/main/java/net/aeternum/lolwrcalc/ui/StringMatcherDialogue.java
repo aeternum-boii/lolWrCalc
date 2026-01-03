@@ -3,7 +3,6 @@ package net.aeternum.lolwrcalc.ui;
 import net.aeternum.lolwrcalc.util.StringMatcher;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Optional;
 import java.util.Scanner;
@@ -13,8 +12,13 @@ import java.util.concurrent.atomic.AtomicReference;
 public class StringMatcherDialogue implements Dialogue {
 
     @Override
-    public Dialogue run(@NotNull PrintStream ps, @NotNull InputStream is, @NotNull UserInterface ui, Object @NotNull ... args) {
+    public void run(@NotNull UiParams params) {
         // args[0][0] = output (String), args[1] input, args[2] String Array to fuzzy match on
+        Object[] args = params.args();
+        PrintStream ps = params.ps();
+        Scanner sc = params.sc();
+
+
         String[] output = (String[]) args[0];
         AtomicReference<String> s = new AtomicReference<>((String) args[1]);
         String[] list = (String[]) args[2];
@@ -23,9 +27,8 @@ public class StringMatcherDialogue implements Dialogue {
         while (!valid.get()) {
             Optional<String> closest = StringMatcher.closestIfAbsent(list, s.get());
             closest.ifPresentOrElse(string -> {
-                ps.println("Could not find \"" + s + "\", did you mean \"" + string + "\"?");
+                ps.println("Could not find \"" + s.get() + "\", did you mean \"" + string + "\"?");
                 ps.print("Enter your choice [Y/N]:");
-                Scanner sc = new Scanner(is);
 
                 String choice = sc.nextLine();
                 if (choice.equalsIgnoreCase("y")) {
@@ -40,7 +43,5 @@ public class StringMatcherDialogue implements Dialogue {
                 valid.set(true);
             });
         }
-
-        return this;
     }
 }

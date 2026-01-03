@@ -5,17 +5,18 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.Scanner;
 import java.util.function.Supplier;
 
 public class UserInterface {
     private final PrintStream ps;
-    private final InputStream is;
+    private final Scanner sc;
     private Dialogue profileManagerDialogue = null;
     private Dialogue agentSelectorDialogue = null;
 
     public UserInterface(@NotNull PrintStream ps, @NotNull InputStream is) {
         this.ps = ps;
-        this.is = is;
+        this.sc = new Scanner(is);
     }
 
     public UserInterface() {
@@ -23,7 +24,7 @@ public class UserInterface {
     }
 
     public void run(@NotNull Dialogue dialogue) {
-        dialogue.run(ps, is, this);
+        dialogue.run(new UiParams(ps, sc, this));
     }
 
     public Dialogue getProfileManagerDialogue() {

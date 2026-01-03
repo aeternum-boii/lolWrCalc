@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.aeternum.lolwrcalc.agentProfiles.AgentProfile;
 import net.aeternum.lolwrcalc.wrapper.Lanes;
+import net.aeternum.lolwrcalc.wrapper.Ranks;
 import net.aeternum.lolwrcalc.wrapper.Wrapper;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,6 +18,9 @@ public class AgentSelector {
     private final Wrapper w;
     public final AgentProfile p;
 
+    public long matchups = 3L;
+    public Ranks.WrappableRank rank = Wrapper.DEFAULT_RANK;
+
     public AgentSelector(@NotNull AgentProfile p) {
         w = new Wrapper();
         this.p = p;
@@ -28,7 +32,7 @@ public class AgentSelector {
         List<WinRateComparison> winRateComparisonList = new LinkedList<>();
 
         for (AgentProfile.Choice choice : p.getChoices()) {
-            w.matchup(new Wrapper.MatchupParam(choice.champion(), enemy, Lanes.getLane(choice.role().name()), Wrapper.DEFAULT_RANK));
+            w.matchup(new Wrapper.MatchupParam(choice.champion(), enemy, Lanes.getLane(choice.role().name()), rank));
 
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(w.OUTPATH.toFile());
@@ -41,7 +45,7 @@ public class AgentSelector {
             w.cleanup();
         }
 
-        return winRateComparisonList.stream().sorted(Comparator.comparing((WinRateComparison wr) -> -wr.winrate())).limit(3L).toArray(WinRateComparison[]::new);
+        return winRateComparisonList.stream().sorted(Comparator.comparing((WinRateComparison wr) -> -wr.winrate())).limit(matchups).toArray(WinRateComparison[]::new);
     }
 
 }
