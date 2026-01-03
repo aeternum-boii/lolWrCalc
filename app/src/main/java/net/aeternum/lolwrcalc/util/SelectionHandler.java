@@ -19,8 +19,6 @@ public class SelectionHandler {
                 valid = choice >= lowerValid && choice <= higherValid;
             } catch (InputMismatchException _) {
                 sc.nextLine();
-            } finally {
-                if(sc.hasNextLine()) sc.nextLine();
             }
             if (!valid) ps.print("Invalid input! Try again: ");
         }
