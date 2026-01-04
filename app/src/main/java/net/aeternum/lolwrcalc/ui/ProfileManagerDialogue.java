@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ProfileManagerDialogue implements Dialogue {
     private final ProfileManager profileManager;
@@ -23,7 +24,9 @@ public class ProfileManagerDialogue implements Dialogue {
     }
 
     @Override
-    public void run(@NotNull UiParams params) {
+    public Dialogue run(@NotNull UiParams params) {
+        AtomicReference<Dialogue> retValue = new AtomicReference<>();
+
         UserInterface ui = params.ui();
         PrintStream ps = params.ps();
         Scanner sc = params.sc();
@@ -47,11 +50,11 @@ public class ProfileManagerDialogue implements Dialogue {
                         Map.entry(1, () -> {
                             try {
                                 Optional<AgentProfile> profile = profileManager.getProfile(getIdentifier(ps, sc));
-                                profile.ifPresentOrElse(agentProfile -> ui.run(new AgentProfileDialogue(agentProfile)),
-                                        () -> run(params));
+                                profile.ifPresentOrElse(agentProfile -> retValue.set(new AgentProfileDialogue(agentProfile)),
+                                        () -> retValue.set(this));
                             } catch (IOException e) {
                                 ps.println("Error loading profile!");
-                                run(params);
+                                retValue.set(this);
                             }
                         }),
                         Map.entry(2, () -> {
@@ -65,16 +68,18 @@ public class ProfileManagerDialogue implements Dialogue {
                             } catch (IOException e) {
                                 ps.println("Error loading profile!");
                             } finally {
-                                run(params);
+                                retValue.set(this);
                             }
                         }),
                         Map.entry(4, () -> {
                             profileManager.loadProfiles();
-                            run(params);
+                            retValue.set(this);
                         }),
-                        Map.entry(5, () -> System.exit(0))
+                        Map.entry(5, () -> retValue.set(null))
                 ), sc, ps
         );
+
+        return retValue.get();
     }
 
     private String getIdentifier(@NotNull PrintStream ps, @NonNull Scanner sc) {

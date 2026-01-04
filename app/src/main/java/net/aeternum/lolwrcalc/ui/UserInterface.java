@@ -24,7 +24,9 @@ public class UserInterface {
     }
 
     public void run(@NotNull Dialogue dialogue) {
-        dialogue.run(new UiParams(ps, sc, this));
+        while (dialogue != null) {
+            dialogue = dialogue.run(new UiParams(ps, sc, this));
+        }
     }
 
     public Dialogue getProfileManagerDialogue() {

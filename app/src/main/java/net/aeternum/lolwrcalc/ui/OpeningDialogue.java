@@ -1,18 +1,17 @@
 package net.aeternum.lolwrcalc.ui;
 
-import net.aeternum.lolwrcalc.util.ErrorCodes;
 import net.aeternum.lolwrcalc.agentProfiles.ProfileManager;
 import net.aeternum.lolwrcalc.util.SelectionHandler;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.InputStream;
-import java.io.PrintStream;
 import java.util.Map;
-import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class OpeningDialogue implements Dialogue {
     @Override
-    public void run(@NotNull UiParams params) {
+    public Dialogue run(@NotNull UiParams params) {
+        AtomicReference<Dialogue> retValue = new AtomicReference<>(null);
+
         params.ps().print("""
                     Options:
                     1. Load Agent Profile (available\s""" + ProfileManager.instance.getProfileCount() + """
@@ -26,10 +25,12 @@ public class OpeningDialogue implements Dialogue {
         UserInterface ui = params.ui();
         SelectionHandler.handle(
                 Map.ofEntries(
-                        Map.entry(1, () -> ui.run(ui.getProfileManagerDialogue() != null ? ui.getProfileManagerDialogue() : new ProfileManagerDialogue(ProfileManager.instance))),
-                        Map.entry(2, () -> ui.run(ui.getProfileManagerDialogue() != null ? ui.getProfileManagerDialogue() : new ProfileManagerDialogue(ProfileManager.instance))),
-                        Map.entry(3, () -> System.exit(0))
+                        Map.entry(1, () -> retValue.set(ui.getProfileManagerDialogue() != null ? ui.getProfileManagerDialogue() : new ProfileManagerDialogue(ProfileManager.instance))),
+                        Map.entry(2, () -> retValue.set(ui.getProfileManagerDialogue() != null ? ui.getProfileManagerDialogue() : new ProfileManagerDialogue(ProfileManager.instance))),
+                        Map.entry(3, () -> retValue.set(null))
                 ), params.sc(), params.ps()
         );
+
+        return retValue.get();
     }
 }

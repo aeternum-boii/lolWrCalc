@@ -1,6 +1,7 @@
 package net.aeternum.lolwrcalc.agentProfiles;
 
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,6 +51,11 @@ public class AgentProfile {
             int cmp = role.compareTo(o.role);
             if(cmp != 0) return cmp;
             return champion.compareTo(o.champion);
+        }
+
+        @Override
+        public @NonNull String toString() {
+            return "[" + champion + " " +  role + "]";
         }
     }
 
@@ -232,5 +238,10 @@ public class AgentProfile {
 
     public enum Role {
         TOP, JUNGLE, MID, BOT, SUPPORT
+    }
+
+    @Override
+    public String toString() {
+        return choices.toString();
     }
 }

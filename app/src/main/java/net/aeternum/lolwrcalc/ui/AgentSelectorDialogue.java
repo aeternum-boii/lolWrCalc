@@ -4,12 +4,14 @@ import net.aeternum.lolwrcalc.agentProfiles.AgentProfile;
 import net.aeternum.lolwrcalc.agentSelector.AgentSelector;
 import net.aeternum.lolwrcalc.util.SelectionHandler;
 import net.aeternum.lolwrcalc.wrapper.Ranks;
+import net.aeternum.lolwrcalc.wrapper.Wrapper;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class AgentSelectorDialogue implements Dialogue {
     private final AgentSelector selector;
@@ -19,7 +21,8 @@ public class AgentSelectorDialogue implements Dialogue {
     }
 
     @Override
-    public void run(@NotNull UiParams params) {
+    public Dialogue run(@NotNull UiParams params) {
+        AtomicReference<Dialogue> retValue = new AtomicReference<>(null);
         UserInterface ui = params.ui();
         PrintStream ps = params.ps();
         Scanner sc = params.sc();
@@ -48,15 +51,15 @@ public class AgentSelectorDialogue implements Dialogue {
 
                             ps.println("Finding optimal matchups against " + out[0]);
                             try {
-                                AgentSelector.WinRateComparison[] matchups = selector.getTopThreeMatchups(AgentProfile.Champion.valueOf(out[0]));
+                                Wrapper.WinRateComparison[] matchups = selector.getTopThreeMatchups(AgentProfile.Champion.valueOf(out[0]));
 
-                                for (AgentSelector.WinRateComparison matchup : matchups) {
+                                for (Wrapper.WinRateComparison matchup : matchups) {
                                     ps.println("Matchup for " + matchup.champion() + " has a winrate of " + matchup.winrate() + "(at " + matchup.matches() + " matches)");
                                 }
                             } catch (IOException e) {
                                 ps.println("Failed I/O while trying to find matchups");
                             } finally {
-                                run(params);
+                                retValue.set(this);
                             }
                         }),
                         Map.entry(2, () -> {
@@ -74,7 +77,7 @@ public class AgentSelectorDialogue implements Dialogue {
                             }
                             selector.matchups = n;
 
-                            run(params);
+                            retValue.set(this);
                         }),
                         Map.entry(3, () -> {
                             ps.print("Select a Rank: ");
@@ -85,11 +88,13 @@ public class AgentSelectorDialogue implements Dialogue {
 
                             selector.rank = Ranks.rankMap.get(s);
 
-                            run(params);
+                            retValue.set(this);
                         }),
-                        Map.entry(4, () -> new AgentProfileDialogue(selector.p).run(params)),
-                        Map.entry(5, () -> System.exit(0))
+                        Map.entry(4, () -> retValue.set(new AgentProfileDialogue(selector.p))),
+                        Map.entry(5, () -> retValue.set(null))
                 ), sc, ps
         );
+
+        return retValue.get();
     }
 }

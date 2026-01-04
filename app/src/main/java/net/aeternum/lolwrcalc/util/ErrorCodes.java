@@ -1,6 +1,8 @@
 package net.aeternum.lolwrcalc.util;
 
 public final class ErrorCodes {
-    public static final int INPUT_PARSING_ERROR = 1;
-    public static final int PROFILE_IO_ERROR = 2;
+    public enum EXIT_CODE {
+        INPUT_PARSING_ERROR,
+        PROFILE_IO_ERROR,
+    }
 }

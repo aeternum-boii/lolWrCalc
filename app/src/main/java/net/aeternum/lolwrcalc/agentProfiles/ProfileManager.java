@@ -3,6 +3,7 @@ package net.aeternum.lolwrcalc.agentProfiles;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import net.aeternum.lolwrcalc.Main;
 import net.aeternum.lolwrcalc.util.ErrorCodes;
 import net.aeternum.lolwrcalc.util.StringMatcher;
 import org.jetbrains.annotations.NotNull;
@@ -38,15 +39,21 @@ public class ProfileManager {
 
     public void loadProfiles() {
 
-        if(!PATH.toFile().exists()) if(!PATH.toFile().mkdirs()) System.exit(ErrorCodes.PROFILE_IO_ERROR);
+        if(!PATH.toFile().exists()) if(!PATH.toFile().mkdirs()) {
+            failedIO();
+        }
         try (Stream<Path> stream = Files.list(PATH)) {
             profiles = stream.collect(Collectors.toMap(
                     Path::toString, (p) -> new FileProfile(p.toFile())
             ));
         } catch (IOException e) {
-            System.exit(ErrorCodes.PROFILE_IO_ERROR);
-            throw new RuntimeException(e); // unreachable, but static analysis does not know that
+            profiles = new HashMap<>();
+            failedIO();
         }
+    }
+
+    private void failedIO() {
+        System.err.println("FAILED IO IN PROFILE MANAGER\nSAVING / LOADING PROFILES IS UNAVAILABLE");
     }
 
     public Optional<AgentProfile> getProfile(@NonNull String identifier) throws IOException {
@@ -111,6 +118,11 @@ public class ProfileManager {
         public @NotNull AgentProfile getProfile() throws IOException {
             if(profile == null) profile = loadProfile(file.getName());
             return profile;
+        }
+
+        @Override
+        public String toString() {
+            return profile == null ? " unloaded" : profile.toString();
         }
     }
 }

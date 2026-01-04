@@ -1,5 +1,5 @@
 package net.aeternum.lolwrcalc.ui;
 
 public interface Dialogue {
-    void run(UiParams params);
+    Dialogue run(UiParams params);
 }

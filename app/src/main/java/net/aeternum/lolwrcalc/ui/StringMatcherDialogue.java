@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class StringMatcherDialogue implements Dialogue {
 
     @Override
-    public void run(@NotNull UiParams params) {
+    public Dialogue run(@NotNull UiParams params) {
         // args[0][0] = output (String), args[1] input, args[2] String Array to fuzzy match on
         Object[] args = params.args();
         PrintStream ps = params.ps();
@@ -43,5 +43,7 @@ public class StringMatcherDialogue implements Dialogue {
                 valid.set(true);
             });
         }
+
+        return null;
     }
 }

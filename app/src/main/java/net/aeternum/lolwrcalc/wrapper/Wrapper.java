@@ -1,14 +1,15 @@
 package net.aeternum.lolwrcalc.wrapper;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.aeternum.lolwrcalc.agentProfiles.AgentProfile;
+import net.aeternum.lolwrcalc.util.StringMatcher;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -16,7 +17,11 @@ import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.*;
+import java.util.stream.Stream;
 
+/**
+ * If this should actually become a lib all public methods should be extended to the extent of {@link #matchup(MatchupParam...)}
+ */
 public class Wrapper {
     private final Path scriptPath;
     public final Path OUTPATH;
@@ -74,6 +79,8 @@ public class Wrapper {
             runScript(c, params.toArray(new String[0]));
         } catch (InterruptedException | IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            cleanup();
         }
     }
 
@@ -114,14 +121,40 @@ public class Wrapper {
         }
     }
 
-    public void matchup(MatchupParam @NonNull ... args) {
+    public WinRateComparison[] matchup(MatchupParam @NonNull ... args) throws IOException {
         core(ApiCall.matchup, args);
+
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode root = mapper.readTree(OUTPATH.toFile());
+
+        return root.valueStream().map(
+                jsonNode -> {
+                    JsonNode dataNode = jsonNode.get("data");
+                    double winrate = dataNode.get("winrate").asDouble();
+                    int matches = Integer.parseInt(dataNode.get("number_of_games").asText().replace(",", ""));
+
+                    String s = jsonNode.get("call").get("args").get(0).asText();
+                    Optional<String> opt = StringMatcher.closestIfAbsent(AgentProfile.champions, s);
+
+                    return new WinRateComparison(AgentProfile.Champion.valueOf(opt.orElse(s)), winrate, matches);
+                }
+        ).toArray(WinRateComparison[]::new);
     }
+
+    public record WinRateComparison(AgentProfile.Champion champion, double winrate, int matches) {}
 
     public record MatchupParam(AgentProfile.Champion champion1, AgentProfile.Champion champion2, Lanes.WrappableLane lane, Ranks.WrappableRank rank) implements Argable {
         @Contract(pure = true)
         public @NonNull String @NonNull [] toArg() {
             return new String[]{champion1.name().toLowerCase(), champion2.name().toLowerCase(), lane.name(), rank.name()};
+        }
+    }
+    
+    public record MatchupParamCommons(AgentProfile.Champion champion2, Lanes.WrappableLane lane, Ranks.WrappableRank rank) {
+        @Contract(pure = true)
+        public @NonNull MatchupParam @NonNull [] expand(@NonNull Stream<AgentProfile.Champion> champion1) {
+            return champion1.map(c -> new Wrapper.MatchupParam(
+                    c, champion2, lane, rank)).toArray(Wrapper.MatchupParam[]::new);
         }
     }
 

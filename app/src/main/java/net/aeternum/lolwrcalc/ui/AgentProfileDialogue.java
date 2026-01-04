@@ -2,16 +2,15 @@ package net.aeternum.lolwrcalc.ui;
 
 import net.aeternum.lolwrcalc.agentProfiles.AgentProfile;
 import net.aeternum.lolwrcalc.agentProfiles.ProfileManager;
-import net.aeternum.lolwrcalc.util.ErrorCodes;
 import net.aeternum.lolwrcalc.util.SelectionHandler;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class AgentProfileDialogue implements Dialogue {
 
@@ -23,7 +22,8 @@ public class AgentProfileDialogue implements Dialogue {
     }
 
     @Override
-    public void run(@NotNull UiParams params) {
+    public Dialogue run(@NotNull UiParams params) {
+        AtomicReference<Dialogue> retValue = new AtomicReference<>(null);
         PrintStream ps = params.ps();
         Scanner sc = params.sc();
         UserInterface ui = params.ui();
@@ -46,28 +46,31 @@ public class AgentProfileDialogue implements Dialogue {
                             try {
                                 ProfileManager.instance.saveProfile(agentProfile);
                             } catch (IOException e) {
-                                ps.println("Error saving profile - exiting!");
-                                System.exit(ErrorCodes.PROFILE_IO_ERROR);
+                                ps.println("Error saving profile!");
+                                retValue.set(this);
+                                return;
                             }
-                            ui.run(ui.getProfileManagerDialogue() != null ? ui.getProfileManagerDialogue() : new ProfileManagerDialogue(ProfileManager.instance));
+                            retValue.set(ui.getProfileManagerDialogue() != null ? ui.getProfileManagerDialogue() : new ProfileManagerDialogue(ProfileManager.instance));
                         }),
                         Map.entry(2, () -> {
                             agentProfile.add(parseChoice(ps, sc, ui));
-                            run(params);
+                            retValue.set(this);
                         }),
                         Map.entry(3, () -> {
                             agentProfile.remove(parseChoice(ps, sc, ui));
-                            run(params);
+                            retValue.set(this);
                         }),
                         Map.entry(4, () -> {
                             new AgentSelectorDialogue(agentProfile).run(params);
                         }),
                         Map.entry(5, () -> {
-                            ui.run(ui.getProfileManagerDialogue() != null ? ui.getProfileManagerDialogue() : new ProfileManagerDialogue(ProfileManager.instance));
+                            retValue.set(ui.getProfileManagerDialogue() != null ? ui.getProfileManagerDialogue() : new ProfileManagerDialogue(ProfileManager.instance));
                         }),
-                        Map.entry(6, () -> System.exit(0))
+                        Map.entry(6, () -> retValue.set(null))
                 ), sc, ps
         );
+
+        return retValue.get();
     }
 
     @Contract("_, _, _ -> new")
