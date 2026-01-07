@@ -86,7 +86,7 @@ public class AgentSelectorDialogue implements Dialogue {
                             String[] out = new String[] {""};
                             new StringMatcherDialogue().run(new UiParams(ps, sc, ui, out, s, Ranks.rankMap.keySet().toArray(new String[0])));
 
-                            selector.rank = Ranks.rankMap.get(s);
+                            selector.rank = Ranks.rankMap.get(out[0]);
 
                             retValue.set(this);
                         }),

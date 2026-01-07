@@ -45,7 +45,7 @@ public class Wrapper {
     }
 
     public Wrapper() {
-        try (InputStream in = Wrapper.class.getResourceAsStream(Path.of("/lolApi.py").toString())) {
+        try (InputStream in = Wrapper.class.getResourceAsStream("/lolApi.py")) {
             if (in == null) throw new RuntimeException("Resource not found");
 
             Path tempDir = Files.createTempDirectory("python");
@@ -72,12 +72,19 @@ public class Wrapper {
     }
 
     @SafeVarargs
-    private <T extends Argable> void core(@NotNull ApiCall c, T ... args) {
+    private <T extends Argable> JsonNode core(@NotNull ApiCall c, T ... args) {
         List<String> params = getParams(args);
 
         try {
             runScript(c, params.toArray(new String[0]));
         } catch (InterruptedException | IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readTree(OUTPATH.toFile());
+        } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
             cleanup();
@@ -121,13 +128,8 @@ public class Wrapper {
         }
     }
 
-    public WinRateComparison[] matchup(MatchupParam @NonNull ... args) throws IOException {
-        core(ApiCall.matchup, args);
-
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode root = mapper.readTree(OUTPATH.toFile());
-
-        return root.valueStream().map(
+    public WinRateComparison[] matchup(MatchupParam @NonNull ... args) {
+        return core(ApiCall.matchup, args).valueStream().map(
                 jsonNode -> {
                     JsonNode dataNode = jsonNode.get("data");
                     double winrate = dataNode.get("winrate").asDouble();
@@ -170,8 +172,12 @@ public class Wrapper {
     }
 
     private void runScript(@NonNull ApiCall c, String @NonNull ... params) throws IOException, InterruptedException {
+        Path venvLinuxDefault = Path.of(System.getProperty("user.home"), "lolalytics-venv", "bin", "python");
+        Path venvWindowsDefault = Path.of(System.getProperty("user.home"), "lolalytics-venv", "Scripts", "python.exe");
+        Path venv = Stream.of(venvLinuxDefault, venvWindowsDefault).filter(Files::exists).findFirst().orElse(Path.of("python"));
+
         LinkedList<String> command = new LinkedList<>(Arrays.asList(
-                Path.of(System.getProperty("user.home"), "lolalytics-venv", "bin", "python").toString(),
+                venv.toString(),
                 scriptPath.toAbsolutePath().toString(),
                 "-f", OUTPATH.toAbsolutePath().toString(),
                 "-c", c.toString()

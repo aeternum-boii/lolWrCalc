@@ -61,7 +61,7 @@ public class AgentProfileDialogue implements Dialogue {
                             retValue.set(this);
                         }),
                         Map.entry(4, () -> {
-                            new AgentSelectorDialogue(agentProfile).run(params);
+                            retValue.set(new AgentSelectorDialogue(agentProfile));
                         }),
                         Map.entry(5, () -> {
                             retValue.set(ui.getProfileManagerDialogue() != null ? ui.getProfileManagerDialogue() : new ProfileManagerDialogue(ProfileManager.instance));
